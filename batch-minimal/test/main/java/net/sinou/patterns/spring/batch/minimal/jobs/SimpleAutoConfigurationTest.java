@@ -23,11 +23,17 @@ import org.springframework.util.Assert;
 
 import net.sinou.patterns.spring.batch.minimal.util.JdbcUtils;
 
-public class SimpleBatchConfigurationTest {
-	private final static Logger logger = LoggerFactory.getLogger(SimpleBatchConfigurationTest.class);
+/**
+ * Test retrieval of the necessary beans via the Spring Autowire mechanism
+ */
+public class SimpleAutoConfigurationTest {
+	private final static Logger logger = LoggerFactory.getLogger(SimpleAutoConfigurationTest.class);
 
 	private ConfigurableApplicationContext context = null;
+
 	private JobLauncher launcher;
+	private DataSource dataSource;
+	private Job job;
 
 	/**
 	 * Injection setter for the {@link JobLauncher}.
@@ -37,6 +43,14 @@ public class SimpleBatchConfigurationTest {
 	 */
 	public void setLauncher(JobLauncher launcher) {
 		this.launcher = launcher;
+	}
+
+	public void setDataSource(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+
+	public void setSimpleBatchJob(Job simpleBatchJob) {
+		this.job = simpleBatchJob;
 	}
 
 	@Before
@@ -55,16 +69,12 @@ public class SimpleBatchConfigurationTest {
 	public void testSimpleJob() throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		Assert.notNull(launcher, "A JobLauncher must be provided.  Please add one to the configuration.");
-
-		Job job = (Job) context.getBean("simpleBatchJob");
+		Assert.notNull(dataSource, "No datasource found in context");
 		Assert.notNull(job, "No job with name 'simpleBatchJob' found in context");
 
 		JobExecution jobExecution = launcher.run(job, new JobParameters());
 		if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
 			logger.info("=== Job completed");
-
-			DataSource dataSource = (DataSource) context.getBean("dataSource");
-			Assert.notNull(dataSource, "No datasource found in context");
 
 			if (logger.isTraceEnabled())
 				JdbcUtils.listAllDbTables(dataSource);
