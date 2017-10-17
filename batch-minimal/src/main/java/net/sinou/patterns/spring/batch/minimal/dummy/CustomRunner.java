@@ -11,7 +11,7 @@ import net.sinou.patterns.spring.batch.minimal.jobs.SimpleBatchConfiguration;
 public class CustomRunner {
 
 	public static void main(String[] args) throws Exception {
-		CommandLineJobRunner
-				.main(new String[] { SimpleBatchConfiguration.class.getName(), "simpleBatchJob" });
+		CommandLineJobRunner.main(new String[] { SimpleBatchConfiguration.class.getName(), "simpleBatchJob" });
 	}
+
 }
