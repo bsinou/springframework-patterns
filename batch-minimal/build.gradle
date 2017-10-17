@@ -40,10 +40,6 @@ dependencies {
 	compile (
 		// DataSource
 	    "org.hsqldb:hsqldb",
- 	 	"org.liquibase:liquibase-core",
- 		"com.zaxxer:HikariCP",
-		// JPA Provider 
-		"org.hibernate:hibernate-entitymanager",
 		// Spring
 		"org.springframework:spring-context-support",
 		"org.springframework:spring-jdbc",
@@ -59,10 +55,7 @@ dependencies {
 	)
 
     runtime(
-            "com.h2database:h2",
             "org.springframework:spring-aspects",
-			// To configure logback using groovy
-            "org.codehaus.groovy:groovy"
     )
 }
 
