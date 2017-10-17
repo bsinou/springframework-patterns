@@ -1,0 +1,83 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+      		url "https://plugins.gradle.org/m2/"
+    	}
+    }
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.3.RELEASE"
+    }
+}
+
+// Define versions
+ext {
+	springBomVersion='2.0.8.RELEASE'
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+// Enables maven like import of the Springframework bom
+apply plugin: "io.spring.dependency-management"
+
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+dependencyManagement {
+  imports {
+        mavenBom "io.spring.platform:platform-bom:$springBomVersion"
+  }
+}
+
+dependencies {
+	
+	compile (
+		// DataSource
+	    "org.hsqldb:hsqldb",
+ 	 	"org.liquibase:liquibase-core",
+ 		"com.zaxxer:HikariCP",
+		// JPA Provider 
+		"org.hibernate:hibernate-entitymanager",
+		// Spring
+		"org.springframework:spring-context-support",
+		"org.springframework:spring-jdbc",
+		// Spring Batch
+		"org.springframework.batch:spring-batch-core",
+		// Logging
+    	"ch.qos.logback:logback-classic",
+    	"org.slf4j:jcl-over-slf4j",
+	)
+
+	testCompile (
+	        "junit:junit"
+	)
+
+    runtime(
+            "com.h2database:h2",
+            "org.springframework:spring-aspects",
+			// To configure logback using groovy
+            "org.codehaus.groovy:groovy"
+    )
+}
+
+
+// Current Jar
+jar {
+    baseName = 'batch-minimal'
+    version =  '0.0.1'
+}
+
+// copy all used dependencies to a known folder
+task copyToLib(type: Copy) {
+    into "$buildDir/libs"
+    from configurations.runtime
+}
+
+compileJava.dependsOn(clean)
+build.dependsOn(copyToLib)
