@@ -9,5 +9,5 @@ To launch the job:
 
 ```
 cd path/to/your/project
-java -cp build/classes:build/libs/* org.springframework.batch.core.launch.support.CommandLineJobRunner net.sinou.patterns.spring.batch.minimal.jobs.SimpleBatchConfiguration simpleBatchJob
+java -cp build/classes:build/libs/* org.springframework.batch.core.launch.support.CommandLineJobRunner net.sinou.patterns.spring.batch.minimal.jobs.SimpleBatchConfiguration simpleBatchJob pathToFolder=<an absolute path>
 ```

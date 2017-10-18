@@ -19,7 +19,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
  * singleton pattern really the best way to go?
  */
 @EnableBatchProcessing
-@Profile("default")
+@Profile("test")
 @PropertySource("classpath:testData.properties")
 public class InMemoryTestConfig implements InfrastructureConfiguration {
 

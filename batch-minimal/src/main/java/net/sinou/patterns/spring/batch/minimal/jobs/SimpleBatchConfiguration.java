@@ -10,17 +10,19 @@ import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import net.sinou.patterns.spring.batch.minimal.configuration.InfrastructureConfiguration;
 import net.sinou.patterns.spring.batch.minimal.configuration.InMemoryTestConfig;
+import net.sinou.patterns.spring.batch.minimal.configuration.InfrastructureConfiguration;
 import net.sinou.patterns.spring.batch.minimal.domain.FileInfo;
 import net.sinou.patterns.spring.batch.minimal.item.DirReader;
 import net.sinou.patterns.spring.batch.minimal.item.FileItemProcessor;
@@ -31,8 +33,8 @@ import net.sinou.patterns.spring.batch.minimal.listener.BasicListener;
 public class SimpleBatchConfiguration {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// We use the external dependency jars as base data for dummy tests
-	private final String basePath = System.getProperty("user.dir") + "/build/libs";
+	// Empty place holder that will be dynamically overwritten on method call
+	private static final String OVERRIDDEN_BY_EXPRESSION = null;
 
 	private static final String SQL_PERSIST = "INSERT INTO FILE_INFO ("
 			+ "file_name, file_path, file_created, file_last_modified, file_owner, file_size" + ") VALUES ("
@@ -48,8 +50,9 @@ public class SimpleBatchConfiguration {
 	public InfrastructureConfiguration infrastructureConfiguration;
 
 	@Bean
-	public ItemReader<File> reader() {
-		return new DirReader(Paths.get(basePath));
+	@StepScope
+	public ItemReader<File> reader(@Value("#{jobParameters[pathToFolder]}") String pathToFolder) {
+		return new DirReader(Paths.get(pathToFolder));
 	}
 
 	@Bean
@@ -76,8 +79,8 @@ public class SimpleBatchConfiguration {
 
 	@Bean
 	public Step step1() {
-		return stepBuilderFactory.get("step1").<File, FileInfo>chunk(10).reader(reader()).processor(processor())
-				.writer(writer()).build();
+		return stepBuilderFactory.get("step1").<File, FileInfo>chunk(10).reader(reader(OVERRIDDEN_BY_EXPRESSION))
+				.processor(processor()).writer(writer()).build();
 	}
 
 	@Bean
