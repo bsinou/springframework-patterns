@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.sql.Statement;
 import java.util.Properties;
 import java.util.Scanner;
@@ -68,7 +69,7 @@ public class SetUpSqlEnv {
 		// Creates a simple connection
 		Connection conn = DriverManager.getConnection(setupProps.getProperty(KEY_DB_URL),
 				setupProps.getProperty(KEY_DB_ADMIN), setupProps.getProperty(KEY_DB_ADMIN_PWD));
-		if (logger.isTraceEnabled())
+		if (logger.isDebugEnabled())
 			logger.debug("Found driver: " + conn.getMetaData().getDriverName() + " - v"
 					+ conn.getMetaData().getDriverVersion());
 		Statement statement = conn.createStatement();
@@ -81,7 +82,27 @@ public class SetUpSqlEnv {
 		// Creates a corresponding user for the app if necessary, we should not use an
 		// admin user during normal operations
 		String userName = setupProps.getProperty(KEY_DB_USER);
-		statement.executeUpdate("DROP USER '" + userName + "';");
+		String statementStr = "DROP USER IF EXISTS '" + userName + "';";
+		try {
+			statement.executeUpdate(statementStr);
+		} catch (SQLSyntaxErrorException e) {
+			String dbProductName = conn.getMetaData().getDatabaseProductName();
+			String dbProductVersion = conn.getMetaData().getDatabaseProductVersion();
+			String msg = "Cannot execute statement: '" + statement
+					+ "'\nThis usually indicate an older version, current " + dbProductName + " - v" + dbProductVersion
+					+ " but we need v10.1.3+";
+			logger.error(msg);
+
+			statementStr = "DROP USER '" + userName + "';";
+			try {
+				statement.executeUpdate(statementStr);
+			} catch (SQLException e2) {
+				if (e2.getErrorCode() == 1396)
+					logger.warn("User " + userName + " does not exists, cannot drop.");
+				else
+					throw new RuntimeException(e2);
+			}
+		}
 		String pwd = setupProps.getProperty(KEY_DB_PASSWORD);
 		statement.executeUpdate("CREATE USER '" + userName + "' IDENTIFIED BY '" + pwd + "';");
 
