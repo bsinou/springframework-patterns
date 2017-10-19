@@ -20,7 +20,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
  */
 @EnableBatchProcessing
 @Profile("test")
-@PropertySource("classpath:testData.properties")
+@PropertySource("classpath:hsqldb-application.properties")
 public class InMemoryTestConfig implements InfrastructureConfiguration {
 
 	@Value("${data.batch.clean}")

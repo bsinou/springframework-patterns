@@ -13,6 +13,7 @@ buildscript {
 // Define versions
 ext {
 	springBomVersion='2.0.8.RELEASE'
+	mariaDbClientVersion='2.1.2'
 }
 
 apply plugin: 'java'
@@ -33,11 +34,17 @@ dependencyManagement {
   imports {
         mavenBom "io.spring.platform:platform-bom:$springBomVersion"
   }
+  
+  // Override default provided version
+  dependencies {
+        dependency "org.mariadb.jdbc:mariadb-java-client:$mariaDbClientVersion"
+  }
 }
 
 dependencies {
 	
 	compile (
+		// Minimal dependencies for in memory DB (tests...)
 		// DataSource
 	    "org.hsqldb:hsqldb",
 		// Spring
@@ -48,6 +55,10 @@ dependencies {
 		// Logging
     	"ch.qos.logback:logback-classic",
     	"org.slf4j:jcl-over-slf4j",
+    	
+    	// Additional dependencies for DB persistence with Maria DB
+    	"org.mariadb.jdbc:mariadb-java-client",
+    	"com.zaxxer:HikariCP"
 	)
 
 	testCompile (
