@@ -1,4 +1,4 @@
-package net.sinou.patterns.spring.batch.minimal.dummy;
+package net.sinou.patterns.spring.batch.minimal.util;
 
 import java.util.Arrays;
 import java.util.Properties;

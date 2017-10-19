@@ -33,13 +33,8 @@ public class SetUpSqlEnv {
 
 	private final static Logger logger = LoggerFactory.getLogger(SetUpSqlEnv.class);
 
-	private static final String KEY_DB_DRIVER_CLASS = "db.driver";
-	private static final String KEY_DB_URL = "db.url";
-	private static final String KEY_DB_NAME = "db.name";
 	private static final String KEY_DB_ADMIN = "db.admin";
 	private static final String KEY_DB_ADMIN_PWD = "db.admin.pwd";
-	private static final String KEY_DB_USER = "db.username";
-	private static final String KEY_DB_PASSWORD = "db.password";
 	private static final String KEY_BATCH_CLEAN = "batch.clean.script";
 	private static final String KEY_BATCH_SCHEMA = "batch.schema.script";
 	private static final String KEY_BUSINESS_SCHEMA = "business.schema.script";
@@ -57,8 +52,9 @@ public class SetUpSqlEnv {
 
 		// Creates the datasource
 		HikariConfig dataSourceConfig = new HikariConfig();
-		dataSourceConfig.setDriverClassName(setupProperties.getProperty(KEY_DB_DRIVER_CLASS));
-		String url = setupProperties.getProperty(KEY_DB_URL) + "/" + setupProperties.getProperty(KEY_DB_NAME);
+		dataSourceConfig.setDriverClassName(setupProperties.getProperty(SqlEnvConfiguration.KEY_DB_DRIVER_CLASS));
+		String url = setupProperties.getProperty(SqlEnvConfiguration.KEY_DB_URL) + "/"
+				+ setupProperties.getProperty(SqlEnvConfiguration.KEY_DB_NAME);
 		dataSourceConfig.setJdbcUrl(url);
 		dataSourceConfig.setUsername(setupProperties.getProperty(KEY_DB_ADMIN));
 		dataSourceConfig.setPassword(setupProperties.getProperty(KEY_DB_ADMIN_PWD));
@@ -67,7 +63,7 @@ public class SetUpSqlEnv {
 
 	private void cleanDatabase() throws SQLException {
 		// Creates a simple connection
-		Connection conn = DriverManager.getConnection(setupProps.getProperty(KEY_DB_URL),
+		Connection conn = DriverManager.getConnection(setupProps.getProperty(SqlEnvConfiguration.KEY_DB_URL),
 				setupProps.getProperty(KEY_DB_ADMIN), setupProps.getProperty(KEY_DB_ADMIN_PWD));
 		if (logger.isDebugEnabled())
 			logger.debug("Found driver: " + conn.getMetaData().getDriverName() + " - v"
@@ -75,23 +71,23 @@ public class SetUpSqlEnv {
 		Statement statement = conn.createStatement();
 
 		// creates the table
-		String dbName = setupProps.getProperty(KEY_DB_NAME);
+		String dbName = setupProps.getProperty(SqlEnvConfiguration.KEY_DB_NAME);
 		statement.executeUpdate("DROP DATABASE IF EXISTS " + dbName + ";");
 		statement.executeUpdate("CREATE DATABASE " + dbName + ";");
 
 		// Creates a corresponding user for the app if necessary, we should not use an
 		// admin user during normal operations
-		String userName = setupProps.getProperty(KEY_DB_USER);
+		String userName = setupProps.getProperty(SqlEnvConfiguration.KEY_DB_USER);
 		String statementStr = "DROP USER IF EXISTS '" + userName + "';";
 		try {
 			statement.executeUpdate(statementStr);
 		} catch (SQLSyntaxErrorException e) {
 			String dbProductName = conn.getMetaData().getDatabaseProductName();
 			String dbProductVersion = conn.getMetaData().getDatabaseProductVersion();
-			String msg = "Cannot execute statement: '" + statement
-					+ "'\nThis usually indicate an older version, current " + dbProductName + " - v" + dbProductVersion
-					+ " but we need v10.1.3+";
-			logger.error(msg);
+			String msg = "Cannot execute statement: \"" + statementStr
+					+ "\\\"\n\tThis usually indicate a too-old older version (we need v10.1.3+). We currently have " + dbProductName + " - v"
+					+ dbProductVersion + "\n\tTrying to automatically workaround the problem";
+			logger.warn(msg);
 
 			statementStr = "DROP USER '" + userName + "';";
 			try {
@@ -103,11 +99,11 @@ public class SetUpSqlEnv {
 					throw new RuntimeException(e2);
 			}
 		}
-		String pwd = setupProps.getProperty(KEY_DB_PASSWORD);
-		statement.executeUpdate("CREATE USER '" + userName + "' IDENTIFIED BY '" + pwd + "';");
+		statement.executeUpdate("CREATE USER '" + userName + "' IDENTIFIED BY '"
+				+ setupProps.getProperty(SqlEnvConfiguration.KEY_DB_PASSWORD) + "';");
 
 		// update corresponding permissions
-		statement.executeUpdate("GRANT SELECT, UPDATE, INSERT, DELETE ON " + dbName + ".* TO " + userName + ";");
+		statement.executeUpdate("GRANT SELECT, UPDATE, INSERT, DELETE ON " + dbName + ".* TO '" + userName + "';");
 	}
 
 	// private void loadClass() {

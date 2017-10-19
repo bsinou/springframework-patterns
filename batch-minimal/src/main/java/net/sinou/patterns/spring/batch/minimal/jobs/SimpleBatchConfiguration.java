@@ -23,13 +23,14 @@ import org.springframework.context.annotation.Import;
 
 import net.sinou.patterns.spring.batch.minimal.configuration.InMemoryTestConfig;
 import net.sinou.patterns.spring.batch.minimal.configuration.InfrastructureConfiguration;
+import net.sinou.patterns.spring.batch.minimal.configuration.SqlEnvConfiguration;
 import net.sinou.patterns.spring.batch.minimal.domain.FileInfo;
 import net.sinou.patterns.spring.batch.minimal.item.DirReader;
 import net.sinou.patterns.spring.batch.minimal.item.FileItemProcessor;
 import net.sinou.patterns.spring.batch.minimal.listener.BasicListener;
 
 @Configuration
-@Import({ InMemoryTestConfig.class })
+@Import({ InMemoryTestConfig.class, SqlEnvConfiguration.class })
 public class SimpleBatchConfiguration {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
