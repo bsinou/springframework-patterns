@@ -1,0 +1,55 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
+    }
+}
+
+plugins {
+		id "java"
+		id "eclipse"
+		// id "org.springframework.boot" // this does not work out of the box
+}
+
+apply plugin: 'org.springframework.boot'
+
+description = 'Simply exposes a markdown document tree on the web'
+
+jar {
+    baseName = 'markdown-website'
+    version =  '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    compile("org.springframework.boot:spring-boot-devtools")
+    testCompile("junit:junit")
+}
+
+eclipse {
+	project {
+		name = 'markdown-website'
+		comment = description
+		// Add gradle nature
+		natures 'org.eclipse.buildship.core.gradleprojectnature'
+		buildCommand 'org.eclipse.buildship.core.gradleprojectbuilder'
+		// More info and docs here: https://docs.gradle.org/current/dsl/org.gradle.plugins.ide.eclipse.model.EclipseProject.html
+		
+		// Manually add compulsory eclipse property files
+		def propFile = new File("$buildDir/../.settings/org.eclipse.buildship.core.prefs")
+		propFile.parentFile.mkdirs();
+		propFile.withWriter { w -> w << "connection.project.dir=\neclipse.preferences.version=1\n\n" }    	
+	}
+}
+
+
+

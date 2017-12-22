@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Springboot PoC: Serving MD files as documentation</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+	<script src="https://cdn.rawgit.com/showdownjs/showdown/1.8.5/dist/showdown.min.js"></script>
+
+	<script th:inline="javascript" >
+
+		document.addEventListener("DOMContentLoaded", function(){
+	    	var converter = new showdown.Converter();
+			
+	    	var md = /*[[${mdFileContent}]]*/ '*No documentation available at this address*';
+	    	var html = converter.makeHtml(md);
+			document.getElementById("doc").innerHTML = html; 
+		});
+	</script>
+	
+	<!--  With JQuery -->
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
+	<script type="text/javascript">
+		/* $(function() { // Shortcut for :  $(document).ready(function(){
+			var converter = new showdown.Converter();
+			var md = '[**Showdown**](http://www.showdownjs.com) is *great*\n' + 'because:\n\n' +
+			         ' - it\'s easy to use\n' +
+			         ' - it\'s extensible\n' +
+			         ' - works in the server and in the browser';
+			var html = converter.makeHtml(md);
+			$("#doc").html(html);
+		}); */	
+	</script>
+</head>
+
+<body>
+	This is a second test
+	<div id="doc"></div>
+</body>
+
+</html>
