@@ -1,0 +1,54 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
+    }
+}
+
+plugins {
+		id "java"
+		id "eclipse"
+		id "org.springframework.boot" version "1.5.9.RELEASE"
+}
+
+def projectName = 'uploading-files'
+description = 'Simply upload files using Spring'
+
+jar {
+    baseName = projectName
+    version =  '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    compile("org.springframework.boot:spring-boot-devtools")
+    testCompile("junit:junit")
+}
+
+eclipse {
+	project {
+		name = projectName
+		comment = description
+		// Add gradle nature
+		natures 'org.eclipse.buildship.core.gradleprojectnature'
+		buildCommand 'org.eclipse.buildship.core.gradleprojectbuilder'
+		
+		// Manually add compulsory eclipse property files
+		def propFile = new File("$buildDir/../.settings/org.eclipse.buildship.core.prefs")
+		propFile.parentFile.mkdirs();
+		propFile.withWriter { w -> w << "connection.project.dir=\neclipse.preferences.version=1\n\n" }    	
+	}
+	
+	classpath {
+		downloadJavadoc = true
+  	}
+}
